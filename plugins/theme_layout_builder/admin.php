@@ -7,16 +7,84 @@ if (!isset($_SESSION['user_id'])) {
 require_once __DIR__ . '/../../config/config.php';
 
 $themes_root = realpath(__DIR__ . '/../../themes');
-$plugins_root = realpath(__DIR__ . '/../../plugins');
-
-if ($themes_root === false || $plugins_root === false) {
-    die('Adresář themes nebo plugins neexistuje.');
+if ($themes_root === false) {
+    die('Adresář themes neexistuje.');
 }
 
 $layout_templates = [
     'basic' => [
         'label' => 'Základní layout',
-        'description' => 'Jednoduchá hlavička + obsah + patička.',
+        'description' => 'Hlavička, navigace, obsah, patička.',
+        'files' => [
+            'header.php' => <<<'PHP'
+<?php
+$site_name = defined('SITE_NAME') ? SITE_NAME : 'PHPrs';
+$page_title_safe = htmlspecialchars($page_data['title'] ?? 'Stránka', ENT_QUOTES, 'UTF-8');
+$lang_suffix = isset($_GET['lang']) ? '&lang=' . urlencode($_GET['lang']) : '';
+?>
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $page_title_safe ?> - <?= htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8') ?></title>
+    <link rel="stylesheet" href="themes/<?= htmlspecialchars(ACTIVE_THEME, ENT_QUOTES, 'UTF-8') ?>/assets/css/style.css">
+</head>
+<body>
+<header class="site-header">
+    <div class="site-header__inner">
+        <a class="brand" href="?page=domu<?= $lang_suffix ?>"><?= htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8') ?></a>
+        <nav class="main-nav">
+            <?php foreach (($menu_items ?? []) as $item): ?>
+                <a href="?page=<?= urlencode($item['slug']) ?><?= $lang_suffix ?>"><?= htmlspecialchars($item['title']) ?></a>
+            <?php endforeach; ?>
+        </nav>
+    </div>
+</header>
+<main class="container">
+PHP,
+            'page.php' => <<<'PHP'
+<article class="card">
+    <h1><?= htmlspecialchars($page_data['title'] ?? '', ENT_QUOTES, 'UTF-8') ?></h1>
+    <div><?= process_shortcodes($page_data['content'] ?? '') ?></div>
+</article>
+PHP,
+            'footer.php' => <<<'PHP'
+</main>
+<footer class="site-footer">
+    <small>&copy; <?= date('Y') ?> <?= htmlspecialchars(defined('SITE_NAME') ? SITE_NAME : 'PHPrs', ENT_QUOTES, 'UTF-8') ?></small>
+    <?php do_action('footer_end'); ?>
+</footer>
+<script src="themes/<?= htmlspecialchars(ACTIVE_THEME, ENT_QUOTES, 'UTF-8') ?>/assets/js/main.js"></script>
+</body>
+</html>
+PHP,
+            'assets/css/style.css' => <<<'CSS'
+:root {
+    --primary: __PRIMARY_COLOR__;
+    --maxw: __MAX_WIDTH__px;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --text: #0f172a;
+    --line: #dbe3ef;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); }
+.site-header { background: var(--surface); border-bottom: 1px solid var(--line); }
+.site-header__inner { max-width: var(--maxw); margin: 0 auto; padding: 1rem; display: flex; gap: 1rem; align-items: center; }
+.brand { font-weight: 700; color: var(--text); text-decoration: none; }
+.main-nav { margin-left: auto; display: flex; gap: .75rem; flex-wrap: wrap; }
+.main-nav a { color: var(--primary); text-decoration: none; }
+.container { max-width: var(--maxw); margin: 1.2rem auto; padding: 0 1rem; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1rem; }
+.site-footer { max-width: var(--maxw); margin: 1rem auto; padding: 1rem; color: #475569; }
+CSS,
+            'assets/js/main.js' => "console.log('Theme __THEME_NAME__ loaded: basic');\n",
+        ],
+    ],
+    'sidebar_right' => [
+        'label' => 'Sidebar vpravo',
+        'description' => 'Obsah vlevo, sidebar vpravo.',
         'files' => [
             'header.php' => <<<'PHP'
 <?php
@@ -32,99 +100,249 @@ $page_title_safe = htmlspecialchars($page_data['title'] ?? 'Stránka', ENT_QUOTE
     <link rel="stylesheet" href="themes/<?= htmlspecialchars(ACTIVE_THEME, ENT_QUOTES, 'UTF-8') ?>/assets/css/style.css">
 </head>
 <body>
-<header>
-    <h1><?= htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8') ?></h1>
-    <nav>
-        <?php foreach (($menu_items ?? []) as $item): ?>
-            <a href="?page=<?= urlencode($item['slug']) ?><?= isset($_GET['lang']) ? '&lang=' . urlencode($_GET['lang']) : '' ?>"><?= htmlspecialchars($item['title']) ?></a>
-        <?php endforeach; ?>
-    </nav>
-</header>
-<main>
+<header class="site-header"><div class="site-header__inner"><strong><?= htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8') ?></strong></div></header>
+<div class="layout layout--right">
+    <main class="content">
 PHP,
             'page.php' => <<<'PHP'
-<article>
-    <h2><?= htmlspecialchars($page_data['title'] ?? '', ENT_QUOTES, 'UTF-8') ?></h2>
-    <div>
+<article class="card">
+    <h1><?= htmlspecialchars($page_data['title'] ?? '', ENT_QUOTES, 'UTF-8') ?></h1>
+    <div><?= process_shortcodes($page_data['content'] ?? '') ?></div>
+</article>
+PHP,
+            'footer.php' => <<<'PHP'
+    </main>
+    <?php include __DIR__ . '/sidebar-right.php'; ?>
+</div>
+<footer class="site-footer"><?php do_action('footer_end'); ?></footer>
+<script src="themes/<?= htmlspecialchars(ACTIVE_THEME, ENT_QUOTES, 'UTF-8') ?>/assets/js/main.js"></script>
+</body>
+</html>
+PHP,
+            'sidebar-right.php' => <<<'PHP'
+<aside class="sidebar">
+    <h3>Sidebar vpravo</h3>
+    <?php render_widgets('sidebar-right'); ?>
+</aside>
+PHP,
+            'assets/css/style.css' => <<<'CSS'
+:root { --primary: __PRIMARY_COLOR__; --maxw: __MAX_WIDTH__px; --bg: #f8fafc; --surface: #fff; --line: #dbe3ef; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); }
+.site-header { background: #0f172a; color: #fff; }
+.site-header__inner { max-width: var(--maxw); margin: 0 auto; padding: 1rem; }
+.layout { max-width: var(--maxw); margin: 1rem auto; padding: 0 1rem; display: grid; gap: 1rem; }
+.layout--right { grid-template-columns: 1fr 300px; }
+.card, .sidebar { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1rem; }
+.sidebar h3 { color: var(--primary); margin-top: 0; }
+@media (max-width: 900px) { .layout--right { grid-template-columns: 1fr; } }
+CSS,
+            'assets/js/main.js' => "console.log('Theme __THEME_NAME__ loaded: sidebar_right');\n",
+        ],
+    ],
+    'sidebar_left' => [
+        'label' => 'Sidebar vlevo',
+        'description' => 'Sidebar vlevo, obsah vpravo.',
+        'files' => [
+            'header.php' => <<<'PHP'
+<?php
+$site_name = defined('SITE_NAME') ? SITE_NAME : 'PHPrs';
+$page_title_safe = htmlspecialchars($page_data['title'] ?? 'Stránka', ENT_QUOTES, 'UTF-8');
+?>
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $page_title_safe ?> - <?= htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8') ?></title>
+    <link rel="stylesheet" href="themes/<?= htmlspecialchars(ACTIVE_THEME, ENT_QUOTES, 'UTF-8') ?>/assets/css/style.css">
+</head>
+<body>
+<header class="site-header"><div class="site-header__inner"><strong><?= htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8') ?></strong></div></header>
+<div class="layout layout--left">
+    <?php include __DIR__ . '/sidebar-left.php'; ?>
+    <main class="content">
+PHP,
+            'page.php' => <<<'PHP'
+<article class="card">
+    <h1><?= htmlspecialchars($page_data['title'] ?? '', ENT_QUOTES, 'UTF-8') ?></h1>
+    <div><?= process_shortcodes($page_data['content'] ?? '') ?></div>
+</article>
+PHP,
+            'footer.php' => <<<'PHP'
+    </main>
+</div>
+<footer class="site-footer"><?php do_action('footer_end'); ?></footer>
+<script src="themes/<?= htmlspecialchars(ACTIVE_THEME, ENT_QUOTES, 'UTF-8') ?>/assets/js/main.js"></script>
+</body>
+</html>
+PHP,
+            'sidebar-left.php' => <<<'PHP'
+<aside class="sidebar">
+    <h3>Sidebar vlevo</h3>
+    <?php render_widgets('sidebar-left'); ?>
+</aside>
+PHP,
+            'assets/css/style.css' => <<<'CSS'
+:root { --primary: __PRIMARY_COLOR__; --maxw: __MAX_WIDTH__px; --bg: #f8fafc; --surface: #fff; --line: #dbe3ef; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); }
+.site-header { background: #0f172a; color: #fff; }
+.site-header__inner { max-width: var(--maxw); margin: 0 auto; padding: 1rem; }
+.layout { max-width: var(--maxw); margin: 1rem auto; padding: 0 1rem; display: grid; gap: 1rem; }
+.layout--left { grid-template-columns: 300px 1fr; }
+.card, .sidebar { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1rem; }
+.sidebar h3 { color: var(--primary); margin-top: 0; }
+@media (max-width: 900px) { .layout--left { grid-template-columns: 1fr; } }
+CSS,
+            'assets/js/main.js' => "console.log('Theme __THEME_NAME__ loaded: sidebar_left');\n",
+        ],
+    ],
+    'full_site' => [
+        'label' => 'Kompletní návrh vzhledu',
+        'description' => 'Header + hero + 3 sloupce + rozšířená patička + mobilní menu.',
+        'files' => [
+            'header.php' => <<<'PHP'
+<?php
+$site_name = defined('SITE_NAME') ? SITE_NAME : 'PHPrs';
+$page_title_safe = htmlspecialchars($page_data['title'] ?? 'Stránka', ENT_QUOTES, 'UTF-8');
+$lang_suffix = isset($_GET['lang']) ? '&lang=' . urlencode($_GET['lang']) : '';
+?>
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $page_title_safe ?> - <?= htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8') ?></title>
+    <link rel="stylesheet" href="themes/<?= htmlspecialchars(ACTIVE_THEME, ENT_QUOTES, 'UTF-8') ?>/assets/css/style.css">
+</head>
+<body>
+<header class="site-header">
+    <div class="site-header__inner">
+        <a class="brand" href="?page=domu<?= $lang_suffix ?>"><?= htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8') ?></a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">☰</button>
+        <nav id="main-nav" class="main-nav">
+            <?php foreach (($menu_items ?? []) as $item): ?>
+                <a href="?page=<?= urlencode($item['slug']) ?><?= $lang_suffix ?>"><?= htmlspecialchars($item['title']) ?></a>
+            <?php endforeach; ?>
+        </nav>
+    </div>
+</header>
+<section class="hero">
+    <div class="hero__inner">
+        <p class="hero__kicker">KOMPLETNÍ ŠABLONA</p>
+        <h1><?= $page_title_safe ?></h1>
+        <p>Tahle varianta je připravená jako plný startovní návrh vzhledu.</p>
+    </div>
+</section>
+<div class="layout layout--three-cols">
+    <?php include __DIR__ . '/sidebar-left.php'; ?>
+    <main class="content">
+PHP,
+            'page.php' => <<<'PHP'
+<article class="content-card">
+    <header class="content-card__header">
+        <h2><?= htmlspecialchars($page_data['title'] ?? '', ENT_QUOTES, 'UTF-8') ?></h2>
+    </header>
+    <div class="content-card__body">
         <?= process_shortcodes($page_data['content'] ?? '') ?>
     </div>
 </article>
 PHP,
             'footer.php' => <<<'PHP'
-</main>
-<footer>
-    <small>&copy; <?= date('Y') ?> <?= htmlspecialchars(defined('SITE_NAME') ? SITE_NAME : 'PHPrs', ENT_QUOTES, 'UTF-8') ?></small>
-    <?php do_action('footer_end'); ?>
-</footer>
-<script src="themes/<?= htmlspecialchars(ACTIVE_THEME, ENT_QUOTES, 'UTF-8') ?>/assets/js/main.js"></script>
-</body>
-</html>
-PHP,
-            'assets/css/style.css' => <<<'CSS'
-body { margin: 0; font-family: Arial, sans-serif; line-height: 1.6; background: #f5f7fb; color: #1f2937; }
-header, footer { background: #111827; color: #fff; padding: 1rem; }
-header nav { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .5rem; }
-header nav a { color: #93c5fd; text-decoration: none; }
-main { max-width: 900px; margin: 2rem auto; background: #fff; padding: 1.5rem; border-radius: 8px; }
-CSS,
-            'assets/js/main.js' => <<<'JS'
-console.log('Theme Layout Builder: basic layout loaded');
-JS,
-        ],
-    ],
-    'sidebar' => [
-        'label' => 'Layout se sidebar',
-        'description' => 'Obsah + pravý sidebar pro widgety.',
-        'files' => [
-            'header.php' => <<<'PHP'
-<?php
-$site_name = defined('SITE_NAME') ? SITE_NAME : 'PHPrs';
-$page_title_safe = htmlspecialchars($page_data['title'] ?? 'Stránka', ENT_QUOTES, 'UTF-8');
-?>
-<!DOCTYPE html>
-<html lang="cs">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $page_title_safe ?> - <?= htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8') ?></title>
-    <link rel="stylesheet" href="themes/<?= htmlspecialchars(ACTIVE_THEME, ENT_QUOTES, 'UTF-8') ?>/assets/css/style.css">
-</head>
-<body>
-<header class="topbar">
-    <h1><?= htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8') ?></h1>
-</header>
-<div class="layout">
-    <main class="content">
-PHP,
-            'page.php' => <<<'PHP'
-<article>
-    <h2><?= htmlspecialchars($page_data['title'] ?? '', ENT_QUOTES, 'UTF-8') ?></h2>
-    <?= process_shortcodes($page_data['content'] ?? '') ?>
-</article>
-PHP,
-            'footer.php' => <<<'PHP'
     </main>
-    <aside class="sidebar">
-        <?php render_widgets('sidebar-right'); ?>
-    </aside>
+    <?php include __DIR__ . '/sidebar-right.php'; ?>
 </div>
-<footer>
-    <small>&copy; <?= date('Y') ?> <?= htmlspecialchars(defined('SITE_NAME') ? SITE_NAME : 'PHPrs', ENT_QUOTES, 'UTF-8') ?></small>
-    <?php do_action('footer_end'); ?>
+<footer class="site-footer">
+    <div class="site-footer__inner">
+        <div>
+            <h3><?= htmlspecialchars(defined('SITE_NAME') ? SITE_NAME : 'PHPrs', ENT_QUOTES, 'UTF-8') ?></h3>
+            <p>Kompletní startovní layout vytvořený z Theme Layout Builderu.</p>
+        </div>
+        <div>
+            <h4>Rychlé odkazy</h4>
+            <ul>
+                <?php foreach (array_slice(($menu_items ?? []), 0, 4) as $item): ?>
+                    <li><a href="?page=<?= urlencode($item['slug']) ?><?= isset($_GET['lang']) ? '&lang=' . urlencode($_GET['lang']) : '' ?>"><?= htmlspecialchars($item['title']) ?></a></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    </div>
+    <div class="site-footer__bottom">
+        <small>&copy; <?= date('Y') ?> <?= htmlspecialchars(defined('SITE_NAME') ? SITE_NAME : 'PHPrs', ENT_QUOTES, 'UTF-8') ?></small>
+        <?php do_action('footer_end'); ?>
+    </div>
 </footer>
 <script src="themes/<?= htmlspecialchars(ACTIVE_THEME, ENT_QUOTES, 'UTF-8') ?>/assets/js/main.js"></script>
 </body>
 </html>
 PHP,
+            'sidebar-left.php' => <<<'PHP'
+<aside class="sidebar sidebar-left">
+    <h3>Levý panel</h3>
+    <?php render_widgets('sidebar-left'); ?>
+</aside>
+PHP,
+            'sidebar-right.php' => <<<'PHP'
+<aside class="sidebar sidebar-right">
+    <h3>Pravý panel</h3>
+    <?php render_widgets('sidebar-right'); ?>
+</aside>
+PHP,
             'assets/css/style.css' => <<<'CSS'
-body { margin: 0; font-family: Arial, sans-serif; background: #eef2ff; color: #111827; }
-.topbar, footer { background: #1e293b; color: white; padding: 1rem; }
-.layout { max-width: 1200px; margin: 2rem auto; display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; }
-.content, .sidebar { background: white; padding: 1.5rem; border-radius: 8px; }
-@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+:root {
+    --primary: __PRIMARY_COLOR__;
+    --maxw: __MAX_WIDTH__px;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --line: #dbe3ef;
+    --text: #0f172a;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, Arial, sans-serif; color: var(--text); background: var(--bg); }
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.site-header { position: sticky; top: 0; z-index: 10; background: var(--surface); border-bottom: 1px solid var(--line); }
+.site-header__inner { max-width: var(--maxw); margin: 0 auto; padding: 1rem; display: flex; align-items: center; gap: 1rem; }
+.brand { font-weight: 800; color: var(--text); }
+.main-nav { margin-left: auto; display: flex; flex-wrap: wrap; gap: .85rem; }
+.menu-toggle { display: none; margin-left: auto; border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: .4rem .6rem; }
+.hero { background: linear-gradient(135deg, var(--primary), #1d4ed8); color: #fff; }
+.hero__inner { max-width: var(--maxw); margin: 0 auto; padding: 2rem 1rem; }
+.hero__kicker { margin: 0; font-size: .75rem; letter-spacing: .08em; opacity: .9; }
+.hero h1 { margin: .4rem 0 .5rem; }
+.hero p { margin: 0; max-width: 720px; }
+.layout { max-width: var(--maxw); margin: 1.2rem auto; padding: 0 1rem; display: grid; gap: 1rem; }
+.layout--three-cols { grid-template-columns: 260px minmax(0,1fr) 260px; }
+.sidebar, .content-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1rem; }
+.content-card__header { border-bottom: 1px solid var(--line); margin-bottom: .75rem; }
+.site-footer { margin-top: 1rem; background: #0b1220; color: #dbeafe; }
+.site-footer__inner { max-width: var(--maxw); margin: 0 auto; padding: 1.4rem 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.site-footer__inner h3, .site-footer__inner h4 { margin-top: 0; color: #fff; }
+.site-footer__inner a { color: #93c5fd; }
+.site-footer__bottom { max-width: var(--maxw); margin: 0 auto; padding: .9rem 1rem; border-top: 1px solid rgba(255,255,255,.2); }
+@media (max-width: 1024px) { .layout--three-cols { grid-template-columns: 1fr; } }
+@media (max-width: 760px) {
+    .menu-toggle { display: inline-block; }
+    .main-nav { display: none; width: 100%; margin-left: 0; }
+    .main-nav.open { display: flex; flex-direction: column; }
+    .site-header__inner { flex-wrap: wrap; }
+    .site-footer__inner { grid-template-columns: 1fr; }
+}
 CSS,
             'assets/js/main.js' => <<<'JS'
-console.log('Theme Layout Builder: sidebar layout loaded');
+(function () {
+    var toggle = document.querySelector('.menu-toggle');
+    var nav = document.getElementById('main-nav');
+    if (!toggle || !nav) return;
+
+    toggle.addEventListener('click', function () {
+        var expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+        nav.classList.toggle('open');
+    });
+})();
+console.log('Theme __THEME_NAME__ loaded: full_site');
 JS,
         ],
     ],
@@ -147,199 +365,64 @@ function write_template_files(string $target_root, array $files): array {
     return [true, ''];
 }
 
-function create_theme_from_template(string $themes_root, string $theme_folder, array $template_files): array {
+function apply_theme_tokens(array $files, string $theme_name, string $primary_color, int $max_width): array {
+    $result = [];
+    foreach ($files as $path => $content) {
+        $result[$path] = str_replace(
+            ['__THEME_NAME__', '__PRIMARY_COLOR__', '__MAX_WIDTH__'],
+            [$theme_name, $primary_color, (string)$max_width],
+            $content
+        );
+    }
+    return $result;
+}
+
+function create_theme_from_template(string $themes_root, string $theme_folder, array $template_files, string $primary_color, int $max_width): array {
     $target_dir = $themes_root . DIRECTORY_SEPARATOR . $theme_folder;
 
     if (is_dir($target_dir)) {
         return [false, 'Šablona s tímto názvem již existuje.'];
     }
 
-    return write_template_files($target_dir, $template_files);
-}
+    $compiled_files = apply_theme_tokens($template_files, $theme_folder, $primary_color, $max_width);
 
-function plugin_php_template(array $config): string {
-    $plugin_name = $config['plugin_name'];
-    $slug = $config['slug'];
-    $with_activation = $config['with_activation'];
-    $with_deactivation = $config['with_deactivation'];
-    $with_uninstall = $config['with_uninstall'];
-    $with_shortcode = $config['with_shortcode'];
-    $shortcode_tag = $config['shortcode_tag'];
-    $with_assets = $config['with_assets'];
-
-    $chunks = [];
-    $chunks[] = "<?php\n";
-    $chunks[] = "/**\n * {$plugin_name}\n * Generováno přes Theme Layout Builder\n */\n\n";
-
-    if ($with_assets) {
-        $chunks[] = "function {$slug}_enqueue_assets() {\n";
-        $chunks[] = "    echo '<link rel=\"stylesheet\" href=\"plugins/{$slug}/assets/css/style.css\">';\n";
-        $chunks[] = "    echo '<script src=\"plugins/{$slug}/assets/js/main.js\" defer></script>';\n";
-        $chunks[] = "}\n";
-        $chunks[] = "add_action('footer_end', '{$slug}_enqueue_assets');\n\n";
-    }
-
-    if ($with_activation) {
-        $chunks[] = "function {$slug}_activate() {\n";
-        $chunks[] = "    // TODO: inicializace tabulek / výchozí data\n";
-        $chunks[] = "}\n";
-        $chunks[] = "register_activation_hook(__FILE__, '{$slug}_activate');\n\n";
-    }
-
-    if ($with_deactivation) {
-        $chunks[] = "function {$slug}_deactivate() {\n";
-        $chunks[] = "    // TODO: cleanup při deaktivaci\n";
-        $chunks[] = "}\n";
-        $chunks[] = "register_deactivation_hook(__FILE__, '{$slug}_deactivate');\n\n";
-    }
-
-    if ($with_uninstall) {
-        $chunks[] = "function {$slug}_uninstall() {\n";
-        $chunks[] = "    // TODO: finální úklid při smazání pluginu\n";
-        $chunks[] = "}\n";
-        $chunks[] = "register_uninstall_hook(__FILE__, '{$slug}_uninstall');\n\n";
-    }
-
-    if ($with_shortcode) {
-        $chunks[] = "function {$slug}_shortcode(\$atts = []) {\n";
-        $chunks[] = "    return '<div class=\"{$slug}-shortcode\">Výstup shortcode [{$shortcode_tag}]</div>';\n";
-        $chunks[] = "}\n";
-        $chunks[] = "add_shortcode('{$shortcode_tag}', '{$slug}_shortcode');\n\n";
-    }
-
-    return implode('', $chunks);
-}
-
-function plugin_admin_template(string $plugin_name): string {
-    $safe_name = htmlspecialchars($plugin_name, ENT_QUOTES, 'UTF-8');
-    $template = <<<'HTML'
-<?php
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    die('Přístup odepřen.');
-}
-?>
-<!DOCTYPE html>
-<html lang="cs">
-<head>
-    <meta charset="UTF-8">
-    <title>__PLUGIN_NAME__ – Nastavení</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f8fafc; }
-        .box { max-width: 900px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; }
-    </style>
-</head>
-<body>
-<div class="box">
-    <h1>__PLUGIN_NAME__</h1>
-    <p>Tady si doprogramujte administrační nastavení pluginu.</p>
-</div>
-</body>
-</html>
-HTML;
-
-    return str_replace('__PLUGIN_NAME__', $safe_name, $template);
-}
-
-function create_plugin_template(string $plugins_root, array $config): array {
-    $slug = $config['slug'];
-    $target_dir = $plugins_root . DIRECTORY_SEPARATOR . $slug;
-
-    if (is_dir($target_dir)) {
-        return [false, 'Plugin s tímto názvem složky už existuje.'];
-    }
-
-    $plugin_json = [
-        'name' => $config['plugin_name'],
-        'description' => $config['plugin_description'],
-        'version' => $config['version'],
-        'settings_page' => $config['with_admin_page'] ? 'admin.php' : ''
-    ];
-
-    $files = [
-        'plugin.json' => json_encode($plugin_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-        'plugin.php' => plugin_php_template($config),
-    ];
-
-    if ($config['with_admin_page']) {
-        $files['admin.php'] = plugin_admin_template($config['plugin_name']);
-    }
-
-    if ($config['with_assets']) {
-        $files['assets/css/style.css'] = ".{$slug}-shortcode { padding: 10px; background: #e2e8f0; border-radius: 6px; }\n";
-        $files['assets/js/main.js'] = "console.log('Plugin {$slug} loaded');\n";
-    }
-
-    return write_template_files($target_dir, $files);
+    return write_template_files($target_dir, $compiled_files);
 }
 
 $message = '';
 $error = '';
-$active_tab = $_POST['builder_type'] ?? 'theme';
+$form_primary_color = $_POST['primary_color'] ?? '#2563eb';
+$form_max_width = $_POST['max_width'] ?? '1280';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $builder_type = $_POST['builder_type'] ?? 'theme';
+    $new_theme_name = trim($_POST['new_theme_name'] ?? '');
+    $layout_key = $_POST['layout_type'] ?? 'basic';
+    $primary_color = trim($_POST['primary_color'] ?? '#2563eb');
+    $max_width = (int)($_POST['max_width'] ?? 1280);
 
-    if ($builder_type === 'theme') {
-        $new_theme_name = trim($_POST['new_theme_name'] ?? '');
-        $layout_key = $_POST['layout_type'] ?? 'basic';
+    if ($new_theme_name === '') {
+        $error = 'Vyplňte název nové šablony.';
+    } elseif (!preg_match('/^[a-z0-9_\-]+$/', $new_theme_name)) {
+        $error = 'Název šablony smí obsahovat pouze malá písmena, čísla, pomlčku a podtržítko.';
+    } elseif (!isset($layout_templates[$layout_key])) {
+        $error = 'Neplatný typ layoutu.';
+    } elseif (!preg_match('/^#[0-9a-fA-F]{6}$/', $primary_color)) {
+        $error = 'Primární barva musí být ve formátu #RRGGBB.';
+    } elseif ($max_width < 960 || $max_width > 1920) {
+        $error = 'Maximální šířka musí být mezi 960 a 1920 px.';
+    } else {
+        [$ok, $internal_error] = create_theme_from_template(
+            $themes_root,
+            $new_theme_name,
+            $layout_templates[$layout_key]['files'],
+            $primary_color,
+            $max_width
+        );
 
-        if ($new_theme_name === '') {
-            $error = 'Vyplňte název nové šablony.';
-        } elseif (!preg_match('/^[a-z0-9_\-]+$/', $new_theme_name)) {
-            $error = 'Název šablony smí obsahovat pouze malá písmena, čísla, pomlčku a podtržítko.';
-        } elseif (!isset($layout_templates[$layout_key])) {
-            $error = 'Neplatný typ layoutu.';
+        if ($ok) {
+            $message = 'Nový layout byl vytvořen ve složce themes/' . htmlspecialchars($new_theme_name, ENT_QUOTES, 'UTF-8') . '.';
         } else {
-            [$ok, $internal_error] = create_theme_from_template(
-                $themes_root,
-                $new_theme_name,
-                $layout_templates[$layout_key]['files']
-            );
-
-            if ($ok) {
-                $message = 'Nový layout byl vytvořen ve složce themes/' . htmlspecialchars($new_theme_name, ENT_QUOTES, 'UTF-8') . '.';
-            } else {
-                $error = $internal_error;
-            }
-        }
-    }
-
-    if ($builder_type === 'plugin') {
-        $plugin_name = trim($_POST['plugin_name'] ?? '');
-        $plugin_slug = trim($_POST['plugin_slug'] ?? '');
-        $plugin_description = trim($_POST['plugin_description'] ?? '');
-        $version = trim($_POST['plugin_version'] ?? '1.0.0');
-        $shortcode_tag = trim($_POST['shortcode_tag'] ?? 'my_shortcode');
-
-        if ($plugin_name === '' || $plugin_slug === '') {
-            $error = 'Vyplňte název pluginu i název složky.';
-        } elseif (!preg_match('/^[a-z0-9_\-]+$/', $plugin_slug)) {
-            $error = 'Název složky pluginu smí obsahovat pouze malá písmena, čísla, pomlčku a podtržítko.';
-        } elseif (!preg_match('/^[a-zA-Z0-9_\-]+$/', $shortcode_tag)) {
-            $error = 'Shortcode tag smí obsahovat pouze písmena, čísla, pomlčku a podtržítko.';
-        } else {
-            $config = [
-                'plugin_name' => $plugin_name,
-                'slug' => $plugin_slug,
-                'plugin_description' => $plugin_description !== '' ? $plugin_description : 'Generovaný plugin z Theme Layout Builderu',
-                'version' => $version !== '' ? $version : '1.0.0',
-                'with_admin_page' => isset($_POST['with_admin_page']),
-                'with_activation' => isset($_POST['with_activation']),
-                'with_deactivation' => isset($_POST['with_deactivation']),
-                'with_uninstall' => isset($_POST['with_uninstall']),
-                'with_shortcode' => isset($_POST['with_shortcode']),
-                'shortcode_tag' => $shortcode_tag,
-                'with_assets' => isset($_POST['with_assets']),
-            ];
-
-            [$ok, $internal_error] = create_plugin_template($plugins_root, $config);
-
-            if ($ok) {
-                $message = 'Nový plugin byl vytvořen ve složce plugins/' . htmlspecialchars($plugin_slug, ENT_QUOTES, 'UTF-8') . '.';
-            } else {
-                $error = $internal_error;
-            }
+            $error = $internal_error;
         }
     }
 }
@@ -348,18 +431,13 @@ $existing_themes = array_values(array_filter(scandir($themes_root), function ($i
     return $item !== '.' && $item !== '..' && is_dir($themes_root . DIRECTORY_SEPARATOR . $item);
 }));
 sort($existing_themes);
-
-$existing_plugins = array_values(array_filter(scandir($plugins_root), function ($item) use ($plugins_root) {
-    return $item !== '.' && $item !== '..' && is_dir($plugins_root . DIRECTORY_SEPARATOR . $item);
-}));
-sort($existing_plugins);
 ?>
 <!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Theme & Plugin Builder</title>
+    <title>Theme Layout Builder</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f1f5f9; margin: 0; padding: 24px; }
         .wrap { max-width: 980px; margin: 0 auto; background: #fff; border-radius: 10px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
@@ -367,26 +445,20 @@ sort($existing_plugins);
         .alert { padding: 12px 14px; border-radius: 8px; margin-bottom: 16px; }
         .success { background: #dcfce7; color: #166534; }
         .error { background: #fee2e2; color: #991b1b; }
-        .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-        .tab { display: inline-block; padding: 8px 12px; border-radius: 8px; background: #e2e8f0; cursor: pointer; font-weight: bold; }
-        .tab.active { background: #2563eb; color: #fff; }
-        .panel { display: none; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 20px; }
-        .panel.active { display: block; }
         .field { margin-bottom: 14px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         label { display: block; font-weight: bold; margin-bottom: 6px; }
-        input[type="text"], textarea, select { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; }
-        textarea { min-height: 90px; }
+        input[type="text"], input[type="number"], input[type="color"], select { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; }
         button { border: 0; background: #2563eb; color: #fff; border-radius: 8px; padding: 10px 16px; font-weight: bold; cursor: pointer; }
         .hint { color: #475569; font-size: 14px; }
-        .checks label { font-weight: normal; margin-bottom: 8px; }
         ul { margin: 10px 0 0; padding-left: 18px; color: #334155; }
+        .layout-list li { margin-bottom: 6px; }
     </style>
 </head>
 <body>
 <div class="wrap">
-    <h1>Theme & Plugin Builder</h1>
-    <p class="hint">Nástroj pro rychlé vytvoření nové šablony i pluginu přímo z administrace.</p>
+    <h1>Theme Layout Builder</h1>
+    <p class="hint">Teď už opravdu kompletní: vyber layout, barvu a šířku a vygeneruj plnohodnotnou šablonu.</p>
 
     <?php if ($message): ?>
         <div class="alert success"><?= $message ?></div>
@@ -396,108 +468,51 @@ sort($existing_plugins);
         <div class="alert error"><?= $error ?></div>
     <?php endif; ?>
 
-    <div class="tabs">
-        <div class="tab <?= $active_tab === 'theme' ? 'active' : '' ?>" data-tab="theme">Generátor šablon</div>
-        <div class="tab <?= $active_tab === 'plugin' ? 'active' : '' ?>" data-tab="plugin">Pokročilý generátor pluginů</div>
-    </div>
+    <h3>Dostupné layouty</h3>
+    <ul class="layout-list">
+        <?php foreach ($layout_templates as $key => $layout): ?>
+            <li><strong><?= htmlspecialchars($key, ENT_QUOTES, 'UTF-8') ?></strong> — <?= htmlspecialchars($layout['label'], ENT_QUOTES, 'UTF-8') ?> (<?= htmlspecialchars($layout['description'], ENT_QUOTES, 'UTF-8') ?>)</li>
+        <?php endforeach; ?>
+    </ul>
 
-    <div class="panel <?= $active_tab === 'theme' ? 'active' : '' ?>" id="panel-theme">
-        <h2>Vytvořit layout</h2>
-        <form method="post" action="">
-            <input type="hidden" name="builder_type" value="theme">
+    <form method="post" action="" style="margin-top:16px;">
+        <div class="field">
+            <label for="new_theme_name">Název nové složky šablony</label>
+            <input type="text" id="new_theme_name" name="new_theme_name" placeholder="napr. custom_layout" required>
+            <div class="hint">Pouze <code>a-z</code>, <code>0-9</code>, <code>-</code>, <code>_</code>.</div>
+        </div>
+
+        <div class="field">
+            <label for="layout_type">Typ layoutu</label>
+            <select id="layout_type" name="layout_type">
+                <?php foreach ($layout_templates as $layout_key => $layout): ?>
+                    <option value="<?= htmlspecialchars($layout_key, ENT_QUOTES, 'UTF-8') ?>">
+                        <?= htmlspecialchars($layout['label'], ENT_QUOTES, 'UTF-8') ?> – <?= htmlspecialchars($layout['description'], ENT_QUOTES, 'UTF-8') ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+
+        <div class="grid">
             <div class="field">
-                <label for="new_theme_name">Název nové složky šablony</label>
-                <input type="text" id="new_theme_name" name="new_theme_name" placeholder="napr. custom_layout" required>
-                <div class="hint">Pouze <code>a-z</code>, <code>0-9</code>, <code>-</code>, <code>_</code>.</div>
+                <label for="primary_color">Primární barva</label>
+                <input type="color" id="primary_color" name="primary_color" value="<?= htmlspecialchars($form_primary_color, ENT_QUOTES, 'UTF-8') ?>">
             </div>
-
             <div class="field">
-                <label for="layout_type">Typ layoutu</label>
-                <select id="layout_type" name="layout_type">
-                    <?php foreach ($layout_templates as $layout_key => $layout): ?>
-                        <option value="<?= htmlspecialchars($layout_key, ENT_QUOTES, 'UTF-8') ?>">
-                            <?= htmlspecialchars($layout['label'], ENT_QUOTES, 'UTF-8') ?> – <?= htmlspecialchars($layout['description'], ENT_QUOTES, 'UTF-8') ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+                <label for="max_width">Max šířka layoutu (px)</label>
+                <input type="number" id="max_width" name="max_width" min="960" max="1920" value="<?= htmlspecialchars($form_max_width, ENT_QUOTES, 'UTF-8') ?>">
             </div>
+        </div>
 
-            <button type="submit">Vytvořit layout</button>
-        </form>
+        <button type="submit">Vytvořit layout</button>
+    </form>
 
-        <h3>Existující šablony</h3>
-        <ul>
-            <?php foreach ($existing_themes as $theme_name): ?>
-                <li><?= htmlspecialchars($theme_name, ENT_QUOTES, 'UTF-8') ?></li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-
-    <div class="panel <?= $active_tab === 'plugin' ? 'active' : '' ?>" id="panel-plugin">
-        <h2>Pokročilé vytváření pluginů</h2>
-        <form method="post" action="">
-            <input type="hidden" name="builder_type" value="plugin">
-
-            <div class="grid">
-                <div class="field">
-                    <label for="plugin_name">Název pluginu</label>
-                    <input type="text" id="plugin_name" name="plugin_name" placeholder="Např. FAQ Manager" required>
-                </div>
-                <div class="field">
-                    <label for="plugin_slug">Složka pluginu</label>
-                    <input type="text" id="plugin_slug" name="plugin_slug" placeholder="faq_manager" required>
-                </div>
-            </div>
-
-            <div class="grid">
-                <div class="field">
-                    <label for="plugin_version">Verze</label>
-                    <input type="text" id="plugin_version" name="plugin_version" value="1.0.0">
-                </div>
-                <div class="field">
-                    <label for="shortcode_tag">Shortcode tag (pokud je zapnutý shortcode)</label>
-                    <input type="text" id="shortcode_tag" name="shortcode_tag" value="my_shortcode">
-                </div>
-            </div>
-
-            <div class="field">
-                <label for="plugin_description">Popis pluginu</label>
-                <textarea id="plugin_description" name="plugin_description" placeholder="Krátký popis funkce pluginu"></textarea>
-            </div>
-
-            <div class="field checks">
-                <label><input type="checkbox" name="with_admin_page" checked> Vytvořit admin stránku pluginu (admin.php)</label>
-                <label><input type="checkbox" name="with_shortcode" checked> Přidat shortcode šablonu</label>
-                <label><input type="checkbox" name="with_assets" checked> Vytvořit assets (CSS + JS)</label>
-                <label><input type="checkbox" name="with_activation" checked> Přidat activation hook</label>
-                <label><input type="checkbox" name="with_deactivation"> Přidat deactivation hook</label>
-                <label><input type="checkbox" name="with_uninstall"> Přidat uninstall hook</label>
-            </div>
-
-            <button type="submit">Vytvořit plugin</button>
-        </form>
-
-        <h3>Existující pluginy</h3>
-        <ul>
-            <?php foreach ($existing_plugins as $plugin_name): ?>
-                <li><?= htmlspecialchars($plugin_name, ENT_QUOTES, 'UTF-8') ?></li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
+    <h3>Existující šablony</h3>
+    <ul>
+        <?php foreach ($existing_themes as $theme_name): ?>
+            <li><?= htmlspecialchars($theme_name, ENT_QUOTES, 'UTF-8') ?></li>
+        <?php endforeach; ?>
+    </ul>
 </div>
-
-<script>
-    document.querySelectorAll('.tab').forEach(function(tab) {
-        tab.addEventListener('click', function() {
-            const selected = tab.dataset.tab;
-
-            document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-            document.querySelectorAll('.panel').forEach(function(panel) { panel.classList.remove('active'); });
-
-            tab.classList.add('active');
-            document.getElementById('panel-' + selected).classList.add('active');
-        });
-    });
-</script>
 </body>
 </html>

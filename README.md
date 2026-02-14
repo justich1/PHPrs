@@ -13,8 +13,6 @@ Tento projekt je jednoduchý CMS v PHP s podporou šablon a pluginů.
 
 ## Instalace (`install.php`)
 
-> Poznámka: v zadání zmiňuješ `instaal.php`, v projektu je instalační skript **`install.php`**.
-
 1. Nahraj projekt na server.
 2. Otevři v prohlížeči:
    - `https://tvoje-domena.cz/install.php`

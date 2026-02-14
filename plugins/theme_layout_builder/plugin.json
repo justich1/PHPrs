@@ -1,0 +1,6 @@
+{
+    "name": "Theme Layout Builder",
+    "description": "Generátor šablon vzhledu z administrace (basic, levý/pravý sidebar, kompletní návrh) s volbou barvy a šířky layoutu.",
+    "version": "1.0",
+    "settings_page": "admin.php"
+}

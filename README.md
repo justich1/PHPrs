@@ -62,7 +62,7 @@ V sekci pluginů lze nahrát `.zip` balíček pluginu.
 | Google Maps Shortcode | `plugins/google_maps` | Umožňuje vložit do stránky responzivní Google Mapu pomocí shortcodu `[mapa adresa="..."]`. |
 | Fotogalerie | `plugins/photo_gallery` | Plugin pro vytváření a správu fotogalerií pomocí shortcodu `[gallery id="..."]`. |
 | E-shop | `plugins/shop` | Jednoduchý e‑shop plugin: kategorie, produkty, sklad, košík, objednávky, QR platba + dobírka, párování plateb přes Fio. |
-| Theme Layout Builder | `plugins/theme_layout_builder` | Nástroj pro vytvoření nové šablony/layoutu a pokročilé generování pluginů přímo z administrace. |
+| Theme Layout Builder | `plugins/theme_layout_builder` | Nástroj pro vytvoření nové šablony/layoutu přímo z administrace: základní, levý/pravý sidebar i kompletní návrh vzhledu. |
 | Složka uploads | `plugins/uploads` | Pozor: smazáním pluginu dojde i k odstranění nahraných souborů. |
 | Správa uživatelů | `plugins/users` | Kompletní správa uživatelů, registrace, profily a administrace. Shortcody: `[prihlaseni]`, `[registrace]`, `[profil]`, `[reset_hesla]`, `[aktivace]`. |
 

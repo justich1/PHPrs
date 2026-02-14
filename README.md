@@ -1,6 +1,6 @@
-# PHPrs – rychlý start
+🇬🇧 PHPrs is a lightweight PHP CMS with plugin and template support.
 
-Tento projekt je jednoduchý CMS v PHP s podporou šablon a pluginů.
+🇨🇿 PHPrs je jednoduchý CMS v PHP s podporou šablon a pluginů.
 
 ## Požadavky
 
@@ -64,3 +64,16 @@ V sekci pluginů lze nahrát `.zip` balíček pluginu.
 | E-shop | `plugins/shop` | Jednoduchý e‑shop plugin: kategorie, produkty, sklad, košík, objednávky, QR platba + dobírka, párování plateb přes Fio. |
 | Složka uploads | `plugins/uploads` | Pozor: smazáním pluginu dojde i k odstranění nahraných souborů. |
 | Správa uživatelů | `plugins/users` | Kompletní správa uživatelů, registrace, profily a administrace. Shortcody: `[prihlaseni]`, `[registrace]`, `[profil]`, `[reset_hesla]`, `[aktivace]`. |
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+### Third-party libraries
+
+This project includes the **phpqrcode** library, which is licensed under the GNU Lesser General Public License v3.0 (LGPL-3.0).
+
+The full license text is available in the phpqrcode library directory.
+

@@ -68,6 +68,16 @@ V sekci pluginů lze nahrát `.zip` balíček pluginu.
 
 ---
 
+☕ Podpora projektu
+
+Pokud se ti projekt líbí a chceš podpořit jeho další vývoj, můžeš přispět dobrovolným darem:
+
+👉 https://paypal.me/justich1
+
+Děkuji za podporu 🙂
+
+---
+
 ## License
 
 This project is licensed under the MIT License.

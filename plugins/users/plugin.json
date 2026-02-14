@@ -1,0 +1,6 @@
+{
+    "name": "Správa uživatelů",
+    "description": "Kompletní správa uživatelů, registrace, profily a administrace. Používá shortcody [prihlaseni], [registrace], [profil], [reset_hesla], [aktivace].",
+    "version": "1.1",
+    "settings_page": "admin.php"
+}

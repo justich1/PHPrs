@@ -1,0 +1,6 @@
+{
+    "name": "Fotogalerie",
+    "description": "Plugin pro vytváření a správu fotogalerií pomocí shortcodu [gallery id=\"...\"]",
+    "version": "1.0",
+    "settings_page": "admin.php"
+}

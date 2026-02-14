@@ -1,0 +1,6 @@
+{
+  "name": "E-shop",
+  "description": "Jednoduchý e‑shop plugin: kategorie, produkty (hlavní fotka + galerie), sklad, košík, objednávky, QR platba + dobírka, párování plateb přes Fio. (PHPRS routing fix: ?shop=...) | fixes: cart load guard, QR rendering, gallery click, image resize | Integrace: přihlášení/registrace z pluginu Uživatelé (session client_user_id), předvyplnění checkoutu.",
+  "version": "2.1.17",
+  "settings_page": "admin.php"
+}

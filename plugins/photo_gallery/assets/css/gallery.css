@@ -1,0 +1,120 @@
+/* --- STYLY PRO PLUGIN GALERIE --- */
+.plugin-gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 1.5rem 0;
+}
+.plugin-gallery figure {
+    margin: 0;
+    border: 1px solid #dee2e6;
+    padding: 5px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+}
+.plugin-gallery figure:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+/* ZMĚNA: Třída odkazu je nyní specifická pro galerii */
+.plugin-gallery a.gallery-lightbox-link {
+    display: block;
+    aspect-ratio: 1 / 1;
+    flex-grow: 1;
+    background-color: #f0f0f0;
+}
+.plugin-gallery img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.plugin-gallery figcaption {
+    text-align: center;
+    padding: 8px 5px;
+    font-size: 0.9em;
+    color: #6c757d;
+    flex-shrink: 0;
+    min-height: 1.2em; /* Zajistí stejnou výšku, i když je popisek prázdný */
+}
+
+/* Responzivita galerie */
+@media (max-width: 992px) {
+    .plugin-gallery { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 576px) {
+    .plugin-gallery { grid-template-columns: 1fr; }
+}
+
+/* --- STYLY PRO LIGHTBOX GALERIE --- */
+/* ZMĚNA: Všechny třídy mají prefix 'gallery-' */
+.gallery-lightbox {
+    position: fixed;
+    z-index: 3000;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.gallery-lightbox.active {
+    opacity: 1;
+    visibility: visible;
+}
+.gallery-lightbox-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+}
+.gallery-lightbox-image {
+    max-width: 100%;
+    max-height: 90vh;
+    display: block;
+    animation: zoomIn 0.3s ease;
+    -webkit-user-drag: none;
+    user-select: none;
+}
+.gallery-lightbox-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    font-size: 2.5rem;
+    color: white;
+    cursor: pointer;
+    line-height: 1;
+}
+.gallery-lightbox-prev, .gallery-lightbox-next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: auto;
+    padding: 16px;
+    color: white;
+    font-weight: bold;
+    font-size: 30px;
+    transition: 0.3s ease;
+    user-select: none;
+    background-color: rgba(0,0,0,0.3);
+}
+.gallery-lightbox-prev {
+    left: 10px;
+    border-radius: 3px 0 0 3px;
+}
+.gallery-lightbox-next {
+    right: 10px;
+    border-radius: 0 3px 3px 0;
+}
+.gallery-lightbox-prev:hover, .gallery-lightbox-next:hover {
+    background-color: rgba(0,0,0,0.6);
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}

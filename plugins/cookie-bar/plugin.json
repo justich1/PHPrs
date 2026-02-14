@@ -1,0 +1,6 @@
+{
+    "name": "Cookie Bar",
+    "description": "Zobrazuje cookie lištu v patičce webu s možností nastavení v administraci. Po udělení souhlasu/nesouhlasu zobrazí odkaz pro opětovné otevření.",
+    "version": "1.0",
+    "settings_page": "admin.php"
+}

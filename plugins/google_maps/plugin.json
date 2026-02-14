@@ -1,0 +1,6 @@
+{
+    "name": "Google Maps Shortcode",
+    "description": "Umožňuje vložit do stránky responzivní Google Mapu pomocí shortcodu [mapa adresa=\"...\"]",
+    "version": "1.0",
+    "settings_page": "admin.php"
+}

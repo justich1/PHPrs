@@ -1,0 +1,6 @@
+{
+    "name": "Blog a Články",
+    "description": "Kompletní správa blogových článků, kategorií a komentářů. Včetně WYSIWYG editoru.",
+    "version": "1.0",
+    "settings_page": "admin-blog.php"
+}

@@ -1,0 +1,6 @@
+{
+    "name": "Složka uploads",
+    "description": "Pozor! SmaZáním dojde k odstranění nahraných souborů.",
+    "version": "1.0",
+    "settings_page": "get_images.php"
+}

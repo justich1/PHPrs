@@ -1,0 +1,6 @@
+{
+    "name": "Theme Layout Builder",
+    "description": "Nástroj pro tvorbu šablon vzhledu z administrace: základní, levý/pravý sidebar i kompletní návrh vzhledu.",
+    "version": "1.0",
+    "settings_page": "admin.php"
+}

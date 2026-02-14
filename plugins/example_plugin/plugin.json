@@ -1,0 +1,6 @@
+{
+    "name": "Example Plugin",
+    "description": "Plugin, který přidává text PC pohotovost do patičky.",
+    "version": "1.0",
+    "settings_page": ""
+}

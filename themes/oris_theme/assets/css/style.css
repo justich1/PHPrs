@@ -1,0 +1,185 @@
+/* ORIS CORE THEME for phpRS 
+    Industriální automatizační styl 
+*/
+
+:root {
+    /* Mapování Oris Core barev na proměnné systému */
+    --accent: #0095ff;
+    --accent-glow: rgba(0, 149, 255, 0.3);
+    --bg-main: #111418;
+    --bg-nav: #1a1e23;
+    --bg-card: #22272e;
+    --border: #30363d;
+    --text-white: #ffffff;
+    --text-dim: #9ca3af;
+    
+    /* Přepsání systémových proměnných z headeru, pokud nejsou nastaveny v DB */
+    --font-family: 'Segoe UI', Tahoma, Helvetica, sans-serif;
+    --header-bg-color: var(--bg-nav);
+    --background-color: var(--bg-main);
+    --text-color: var(--text-white);
+    --container-bg-color: var(--bg-card);
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-main);
+    color: var(--text-color);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Hlavička */
+.header-wrapper {
+    background-color: var(--bg-nav);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+}
+
+.site-header {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+    height: 80px;
+}
+
+.site-logo img {
+    max-height: 45px;
+    width: auto;
+    display: block;
+}
+
+.site-logo a {
+    color: var(--accent);
+    font-weight: 800;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 1px;
+}
+
+/* Navigace */
+.primary-navigation ul {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+}
+
+.primary-navigation a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    transition: 0.3s;
+}
+
+.primary-navigation a:hover {
+    color: var(--accent);
+}
+
+/* Kontejner obsahu */
+.container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 2rem;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+/* Hero sekce (pokud je v obsahu) */
+.hero-banner {
+    margin: -2rem -2rem 2rem -2rem;
+    padding: 100px 2rem;
+    background: linear-gradient(rgba(17, 20, 24, 0.7), rgba(17, 20, 24, 0.9)), url('background.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+}
+
+.hero-banner h1 { color: var(--text-white); font-size: 2.5rem; margin-bottom: 1rem; }
+.hero-banner p { color: var(--text-white); max-width: 700px; margin: 0 auto; }
+
+/* Patička */
+.footer-wrapper {
+    background-color: #0b0e11;
+    border-top: 1px solid var(--border);
+    padding: 60px 0;
+    margin-top: 100px;
+}
+
+.site-footer {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.site-footer p { color: var(--text-dim); font-size: 0.85rem; }
+
+/* Tabulky specifikací (pro page.php) */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: rgba(0,0,0,0.1);
+}
+
+th, td {
+    padding: 12px 15px;
+    border: 1px solid var(--border);
+    text-align: left;
+}
+
+th {
+    color: var(--accent);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    background: rgba(0,0,0,0.2);
+}
+
+/* Mobilní menu */
+@media (max-width: 768px) {
+    .site-header { padding: 0 1rem; }
+    
+    .primary-navigation {
+        position: fixed;
+        inset: 0 0 0 30%;
+        background: var(--bg-nav);
+        padding: 6rem 2rem;
+        z-index: 2000;
+        transform: translateX(100%);
+        transition: 350ms;
+        border-left: 1px solid var(--border);
+    }
+    
+    .primary-navigation[data-visible="true"] { transform: translateX(0%); }
+    .primary-navigation ul { flex-direction: column; }
+    .primary-navigation a { color: var(--text-white); font-size: 1.2rem; }
+    
+    .mobile-nav-toggle {
+        display: block;
+        background: transparent;
+        border: 0;
+        width: 30px;
+        height: 30px;
+        position: relative;
+        z-index: 3000;
+    }
+    
+    .mobile-nav-toggle::before, .mobile-nav-toggle::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background: var(--text-white);
+        transition: 0.3s;
+    }
+    .mobile-nav-toggle::before { top: 10px; }
+    .mobile-nav-toggle::after { bottom: 10px; }
+}

@@ -1,6 +1,6 @@
 {
     "name": "Theme Layout Builder",
-    "description": "Vytvoření nové šablony/layoutu přímo z administrace bez ručního kopírování souborů.",
+    "description": "Nástroj pro vytváření nových šablon/layoutů i pokročilé generování pluginů z administrace.",
     "version": "1.0",
     "settings_page": "admin.php"
 }

@@ -1,0 +1,6 @@
+{
+    "name": "Theme Layout Builder",
+    "description": "Nástroj pro vytváření nových šablon/layoutů i pokročilé generování pluginů z administrace.",
+    "version": "1.0",
+    "settings_page": "admin.php"
+}
